@@ -103,7 +103,14 @@ export interface SchemaRow {
 
 export interface AuditResult {
   version: 1;
-  site: { inputUrl: string; finalUrl: string; origin: string; host: string };
+  site: {
+    inputUrl: string;
+    finalUrl: string;
+    origin: string;
+    host: string;
+    /** Website platform guessed from the homepage. Missing on audits made before it was added. */
+    platform?: "wordpress" | "shopify" | "other";
+  };
   crawl: {
     pagesCrawled: number;
     htmlPages: number;

@@ -699,7 +699,7 @@ export function analyze(crawl: CrawlData, cwv: CoreWebVitals): AuditResult {
 
   return {
     version: 1,
-    site: { inputUrl: crawl.inputUrl, finalUrl: crawl.finalUrl, origin: crawl.origin, host: crawl.host },
+    site: { inputUrl: crawl.inputUrl, finalUrl: crawl.finalUrl, origin: crawl.origin, host: crawl.host, platform: crawl.platform },
     crawl: {
       pagesCrawled: pages.length,
       htmlPages: html.length,

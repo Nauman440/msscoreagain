@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { bookingUrl } from "@/lib/site";
+import { signupHref } from "@/lib/plans";
 import { CATEGORY_LABELS, SEVERITY_ORDER, type AuditResult, type Category, type Issue, type Severity } from "@/lib/audit/types";
 import EmailCapture from "./EmailCapture";
 import {
@@ -107,7 +107,8 @@ function IssueDetails({ issue, unlocked }: { issue: Issue; unlocked: boolean }) 
   );
 }
 
-function PlanCard({ name, price, unit, text, features, action, featured, outline }: {
+function PlanCard({ name, price, unit, text, features, action, featured, outline, href }: {
+  href: string;
   name: string;
   price: string;
   unit: string;
@@ -148,7 +149,7 @@ function PlanCard({ name, price, unit, text, features, action, featured, outline
           </div>
         ))}
       </div>
-      <a href={bookingUrl} style={{ ...(outline ? secondaryButton : primaryButton), marginTop: "auto", ...(outline ? {} : { color: "#FFFFFF" }) }}>
+      <a href={href} style={{ ...(outline ? secondaryButton : primaryButton), marginTop: "auto", ...(outline ? {} : { color: "#FFFFFF" }) }}>
         {action}
       </a>
     </div>
@@ -559,6 +560,7 @@ export default function Report({ id, result, unlocked, onUnlock }: {
         </div>
         <Grid min={280}>
           <PlanCard
+            href={signupHref("autopilot", id)}
             name="Autopilot"
             price="$79"
             unit="/month"
@@ -567,6 +569,7 @@ export default function Report({ id, result, unlocked, onUnlock }: {
             action="Start Autopilot"
           />
           <PlanCard
+            href={signupHref("growth", id)}
             name="Growth"
             price="$229"
             unit="/month"
@@ -576,6 +579,7 @@ export default function Report({ id, result, unlocked, onUnlock }: {
             action="Choose Growth"
           />
           <PlanCard
+            href={signupHref("full", id)}
             name="Full SEO package"
             price="Custom"
             unit="quote"

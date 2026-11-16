@@ -1,6 +1,9 @@
 import { randomBytes } from "node:crypto";
 import type { Pool } from "pg";
+import { getPool } from "@/lib/db";
 import type { AuditProgress, AuditRecord, AuditResult, Lead } from "./types";
+
+export { storageMissingOnServerless } from "@/lib/db";
 
 /**
  * Where audits and leads are kept.
@@ -217,35 +220,12 @@ class PostgresStore implements AuditStore {
   }
 }
 
-/** DATABASE_URL, or POSTGRES_URL as set by Vercel's Postgres integrations (Neon, Supabase). */
-export function databaseUrl(): string | undefined {
-  return process.env.DATABASE_URL || process.env.POSTGRES_URL || undefined;
-}
-
-/**
- * On serverless hosting each request can land on a different server, so
- * audits kept in memory would vanish between requests. A database is required there.
- */
-export function storageMissingOnServerless(): boolean {
-  return Boolean(process.env.VERCEL) && !databaseUrl();
-}
-
 // Kept on globalThis so development hot reloads do not lose in-memory audits.
 const globalStore = globalThis as unknown as { __msscoreStore?: AuditStore };
 
 export function getStore(): AuditStore {
   if (globalStore.__msscoreStore) return globalStore.__msscoreStore;
-  const url = databaseUrl();
-  if (url) {
-    // Loaded lazily so the app runs without PostgreSQL in development.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Pool: PgPool } = require("pg") as typeof import("pg");
-    const internal = /localhost|127\.0\.0\.1|\.railway\.internal|sslmode=disable/.test(url);
-    globalStore.__msscoreStore = new PostgresStore(
-      new PgPool({ connectionString: url, max: 5, ssl: internal ? undefined : { rejectUnauthorized: false } }),
-    );
-  } else {
-    globalStore.__msscoreStore = new MemoryStore();
-  }
+  const pool = getPool();
+  globalStore.__msscoreStore = pool ? new PostgresStore(pool) : new MemoryStore();
   return globalStore.__msscoreStore;
 }

@@ -23,8 +23,17 @@ marketing homepage and the free SEO audit with its report page.
 - **Corrected sitemap download** built from the indexable pages found.
 - One audit per site is reused for 30 days, and each visitor can start 10 audits an hour.
 
-Not built yet: payment and accounts, onboarding, the follow-up email sequence,
-DataForSEO keyword and competitor research, and applying fixes.
+- **Accounts and onboarding** (`/signup`, `/login`, `/dashboard`). Every plan button opens a
+  5-step setup: (1) create the account, (2) website and platform, prefilled from the free audit,
+  (3) country, areas and language, (4) services and competitors, (5) which accounts the owner can
+  connect, plus their consent to prepared changes. The audit is linked to the account and its
+  full report unlocked. Paid plans are saved as "payment not set up yet" and the Full SEO
+  package as "quote requested". Payment will slot in before step 1.
+  Passwords are stored as scrypt hashes, sessions as SHA-256 hashes in an HttpOnly cookie,
+  account forms refuse posts from other websites, and login attempts are rate limited.
+
+Not built yet: payment, connecting Search Console, Analytics and websites, the follow-up email
+sequence, DataForSEO keyword and competitor research, and applying fixes.
 
 ## Scoring
 
