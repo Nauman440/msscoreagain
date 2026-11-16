@@ -5,7 +5,8 @@
  * (resend.com). Without them the email is only logged, so the rest of the
  * flow can be tested before an email provider is chosen.
  */
-export async function sendReportEmail(input: { to: string; host: string; reportUrl: string; score: number }): Promise<void> {
+/** Returns true when the email was handed to the provider, false when no provider is set up. */
+export async function sendReportEmail(input: { to: string; host: string; reportUrl: string; score: number }): Promise<boolean> {
   const subject = `Your SEO audit for ${input.host}: score ${input.score}%`;
   const text = [
     `Here is your full SEO audit for ${input.host}.`,
@@ -23,8 +24,8 @@ export async function sendReportEmail(input: { to: string; host: string; reportU
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!key || !from) {
-    console.info(`[email] not sent (RESEND_API_KEY or EMAIL_FROM not set): "${subject}" with link ${input.reportUrl}`);
-    return;
+    console.info(`[email] not sent (RESEND_API_KEY or EMAIL_FROM not set): "${subject}" for audit ${input.reportUrl.split("?")[0]}`);
+    return false;
   }
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -35,4 +36,5 @@ export async function sendReportEmail(input: { to: string; host: string; reportU
   if (!response.ok) {
     throw new Error(`Email provider returned ${response.status}`);
   }
+  return true;
 }

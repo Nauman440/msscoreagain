@@ -27,11 +27,10 @@ export async function POST(request: Request, ctx: RouteContext<"/api/audits/[id]
   const lead = await getStore().saveLead(id, email);
   const base = process.env.PUBLIC_BASE_URL?.replace(/\/$/, "") || new URL(request.url).origin;
   const reportUrl = `${base}/report/${id}?key=${lead.unlockToken}`;
-  let emailed = true;
+  let emailed = false;
   try {
-    await sendReportEmail({ to: email, host: record.host, reportUrl, score: record.result.scores.overall });
+    emailed = await sendReportEmail({ to: email, host: record.host, reportUrl, score: record.result.scores.overall });
   } catch (error) {
-    emailed = false;
     console.error(`[lead ${id}] report email failed`, error);
   }
 

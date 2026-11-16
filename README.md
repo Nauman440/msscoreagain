@@ -67,6 +67,27 @@ npm test
 npm run typecheck
 ```
 
+## Deploy to Vercel
+
+1. Import the repository in Vercel (it detects Next.js, no build settings needed).
+2. **Add a database. Audits do not work on Vercel without one**, because each request can
+   run on a different server. In the project, open **Storage**, create a **Neon** (Postgres)
+   database and connect it to the project. That sets `DATABASE_URL` (or `POSTGRES_URL`, which
+   also works). Any PostgreSQL works if you paste its URL into `DATABASE_URL` yourself.
+   Tables are created automatically on first use.
+3. Add `PAGESPEED_API_KEY` (free, from Google Cloud: enable the PageSpeed Insights API and
+   create an API key). Without it Google often refuses requests from Vercel, and the report
+   shows speed as "not measured".
+4. Add `PUBLIC_BASE_URL` (your Vercel address), and `RESEND_API_KEY` and `EMAIL_FROM` when ready.
+5. Redeploy so the new variables take effect.
+
+The audit runs after the "audit started" reply, using Next.js `after()`, inside the
+`/api/audits` function's 60-second limit (`maxDuration`). The whole audit is capped at 52
+seconds (`AUDIT_TOTAL_BUDGET_MS`) so it always finishes inside it.
+
+The per-visitor limit of 10 audits an hour is kept in each server's memory, so on Vercel it is
+only approximate. Use Vercel's firewall rate limiting if abuse becomes a problem.
+
 ## Deploy to Railway
 
 1. Create a project on Railway and choose **Deploy from GitHub repo**, then pick this repository.
@@ -77,8 +98,7 @@ npm run typecheck
    `RESEND_API_KEY` and `EMAIL_FROM`. See `.env.example` for every setting.
 4. Under Settings, Networking, generate a public domain. Every push to `main` redeploys.
 
-Audits run inside the web server process, so the app needs a long-running Node.js server
-(Railway, Render or a VPS). It does not work on serverless hosting such as Vercel functions.
+On Railway the app runs as one long-lived server, and the same code works there unchanged.
 A separate worker and queue can be added when traffic needs it.
 
 ## Security

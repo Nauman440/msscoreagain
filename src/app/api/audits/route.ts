@@ -1,8 +1,24 @@
+import { after } from "next/server";
 import { RateLimitError, startAudit } from "@/lib/audit/run";
+import { storageMissingOnServerless } from "@/lib/audit/store";
 import { InvalidUrlError } from "@/lib/audit/url";
+
+/**
+ * Seconds this function may keep running. The audit runs inside `after()`,
+ * which shares this limit, and auditConfig.totalBudgetMs keeps it inside.
+ * 60 seconds is allowed on every Vercel plan.
+ */
+export const maxDuration = 60;
 
 /** Starts a free audit. Body: { "url": "yourdomain.com" }. Returns { id }. */
 export async function POST(request: Request) {
+  if (storageMissingOnServerless()) {
+    console.error("[api/audits] DATABASE_URL is not set. Audits cannot work on Vercel without a database.");
+    return Response.json(
+      { error: "The audit is not set up yet: the site's database is not connected. Please try again later." },
+      { status: 503 },
+    );
+  }
   let body: { url?: unknown };
   try {
     body = await request.json();
@@ -14,7 +30,8 @@ export async function POST(request: Request) {
   }
   const ip = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || request.headers.get("x-real-ip") || "unknown";
   try {
-    const { id, reused } = await startAudit(body.url, ip);
+    const { id, reused, run } = await startAudit(body.url, ip);
+    if (run) after(run);
     return Response.json({ id, reused }, { status: reused ? 200 : 202 });
   } catch (error) {
     if (error instanceof InvalidUrlError) return Response.json({ error: error.message }, { status: 400 });

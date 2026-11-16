@@ -11,7 +11,12 @@ export const auditConfig = {
   /** Most pages a free audit will crawl. */
   pageCap: intEnv("AUDIT_PAGE_CAP", 50),
   /** The crawl stops starting new pages after this long, so the report arrives in about a minute. */
-  crawlBudgetMs: intEnv("AUDIT_CRAWL_BUDGET_MS", 40_000),
+  crawlBudgetMs: intEnv("AUDIT_CRAWL_BUDGET_MS", 35_000),
+  /**
+   * Hard limit for a whole audit. It must stay below the route's maxDuration
+   * (60 seconds, see src/app/api/audits/route.ts) or the host stops the audit midway.
+   */
+  totalBudgetMs: intEnv("AUDIT_TOTAL_BUDGET_MS", 52_000),
   /** Requests in flight at once against the audited site. */
   concurrency: intEnv("AUDIT_CONCURRENCY", 6),
   /** Per-request timeout. */
@@ -25,7 +30,8 @@ export const auditConfig = {
   /** Audits one visitor (IP address) may start per hour. */
   perIpPerHour: intEnv("AUDIT_RATE_LIMIT_PER_HOUR", 10),
   /** Audits running at the same time in this server process. */
-  maxConcurrentAudits: intEnv("AUDIT_MAX_CONCURRENT", 3),
+  // On Vercel each audit gets its own function time, so waiting in line would only eat into it.
+  maxConcurrentAudits: intEnv("AUDIT_MAX_CONCURRENT", process.env.VERCEL ? 1_000 : 3),
   /** Affected pages shown per issue before the visitor gives an email. */
   previewExamples: 3,
   /** Most affected pages stored per issue. */

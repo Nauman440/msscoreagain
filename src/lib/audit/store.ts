@@ -217,12 +217,25 @@ class PostgresStore implements AuditStore {
   }
 }
 
+/** DATABASE_URL, or POSTGRES_URL as set by Vercel's Postgres integrations (Neon, Supabase). */
+export function databaseUrl(): string | undefined {
+  return process.env.DATABASE_URL || process.env.POSTGRES_URL || undefined;
+}
+
+/**
+ * On serverless hosting each request can land on a different server, so
+ * audits kept in memory would vanish between requests. A database is required there.
+ */
+export function storageMissingOnServerless(): boolean {
+  return Boolean(process.env.VERCEL) && !databaseUrl();
+}
+
 // Kept on globalThis so development hot reloads do not lose in-memory audits.
 const globalStore = globalThis as unknown as { __msscoreStore?: AuditStore };
 
 export function getStore(): AuditStore {
   if (globalStore.__msscoreStore) return globalStore.__msscoreStore;
-  const url = process.env.DATABASE_URL;
+  const url = databaseUrl();
   if (url) {
     // Loaded lazily so the app runs without PostgreSQL in development.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
