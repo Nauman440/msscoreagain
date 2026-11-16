@@ -86,18 +86,19 @@ export function website(body: Body): string {
   }
 }
 
-export function platform(body: Body): Platform {
+/** The platform, if one was sent. Owners are not asked; it is detected from the audit. */
+export function platform(body: Body): Platform | undefined {
   const value = body.platform;
-  if (typeof value === "string" && (PLATFORMS as string[]).includes(value)) return value as Platform;
-  throw new FieldError("platform", "Choose the platform your website is built on.");
+  return typeof value === "string" && (PLATFORMS as string[]).includes(value) ? (value as Platform) : undefined;
 }
 
 /** Reads the fields of one onboarding step into the profile. */
 export function profileStep(step: number, body: Body): { profile: BusinessProfile; website?: string } {
   switch (step) {
     case 2: {
-      const values = collect({ website: () => website(body), platform: () => platform(body) });
-      return { website: values.website, profile: { platform: values.platform } };
+      const values = collect({ website: () => website(body) });
+      const detected = platform(body);
+      return { website: values.website, profile: detected ? { platform: detected } : {} };
     }
     case 3:
       return {

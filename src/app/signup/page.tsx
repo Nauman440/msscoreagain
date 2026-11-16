@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import AppShell from "@/components/account/AppShell";
 import SignupFlow from "@/components/account/SignupFlow";
 import { currentAccount } from "@/lib/account/session";
 import { ONBOARDING_DONE } from "@/lib/account/types";
@@ -19,14 +18,22 @@ export const metadata: Metadata = {
  */
 export default async function SignupPage(props: PageProps<"/signup">) {
   const params = await props.searchParams;
-  const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
+  const first = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value;
   const account = await currentAccount();
   const business = account?.business ?? null;
 
-  if (business && business.onboardingStep >= ONBOARDING_DONE && !first(params.step)) redirect("/dashboard");
+  if (
+    business &&
+    business.onboardingStep >= ONBOARDING_DONE &&
+    !first(params.step)
+  )
+    redirect("/dashboard");
 
   const planParam = first(params.plan);
-  const plan = business ? PLANS[business.plan] : PLANS[isPlanId(planParam) ? planParam : "growth"];
+  const plan = business
+    ? PLANS[business.plan]
+    : PLANS[isPlanId(planParam) ? planParam : "growth"];
   const auditId = business?.auditId ?? first(params.audit) ?? null;
   const audit = auditId ? await loadAudit(auditId) : null;
 
@@ -34,20 +41,32 @@ export default async function SignupPage(props: PageProps<"/signup">) {
   if (business) {
     const asked = Number(first(params.step));
     const reached = Math.min(business.onboardingStep, 5);
-    startStep = Number.isInteger(asked) && asked >= 2 && asked <= reached ? asked : reached;
+    startStep =
+      Number.isInteger(asked) && asked >= 2 && asked <= reached
+        ? asked
+        : reached;
   }
 
+  const result = audit?.result;
   return (
-    <AppShell loggedIn={Boolean(account)}>
-      <SignupFlow
-        // A new key once the account exists, so the form starts again at the saved step.
-        key={business ? `${business.id}-${startStep}` : "new"}
-        plan={plan}
-        auditId={audit?.id ?? null}
-        audit={audit?.result ? { host: audit.result.site.host, score: audit.result.scores.overall } : null}
-        business={business}
-        startStep={startStep}
-      />
-    </AppShell>
+    <SignupFlow
+      // A new key once the account exists, so the form starts again at the saved step.
+      key={business ? `${business.id}-${startStep}` : "new"}
+      plan={plan}
+      auditId={audit?.id ?? null}
+      audit={
+        result
+          ? {
+              host: result.site.host,
+              score: result.scores.overall,
+              issues: result.issueTotal,
+              critical: result.severityCounts.critical,
+            }
+          : null
+      }
+      business={business}
+      userName={account?.user.name ?? null}
+      startStep={startStep}
+    />
   );
 }
