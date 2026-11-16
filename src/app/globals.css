@@ -1,26 +1,46 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* Homepage (navy and orange theme) */
+.home h1,
+.home h2,
+.home h3 {
+  font-family: "Sora", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.home a:hover {
+  opacity: 0.85;
+}
+
+/* Audit report (blue theme) */
+.report a {
+  color: #2563eb;
+}
+
+.report a:hover {
+  color: #1d4ed8;
+}
+
+.report details > summary {
+  cursor: pointer;
+}
+
+@keyframes msscore-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

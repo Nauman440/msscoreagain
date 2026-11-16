@@ -1,0 +1,7 @@
+import AuditForm from "@/components/AuditForm";
+
+export default function FinalCta() {
+  return (
+    <section style={{background: "#0F1B2D", color: "#FFFFFF", padding: "72px 0"}}><div style={{maxWidth: "1120px", margin: "0 auto", padding: "0 24px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "20px", alignItems: "center", textAlign: "center"}}><h2 style={{margin: "0", fontSize: "38px", lineHeight: "1.15", fontWeight: "800", letterSpacing: "-0.02em", maxWidth: "720px"}}>Your competitors are getting your calls. Find out why in 60 seconds.</h2><p style={{margin: "0", fontSize: "17px", color: "#CBD5E1", maxWidth: "600px"}}>Run your free SEO audit now and get a clear list of what to fix first.</p><AuditForm><div style={{display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", width: "100%", maxWidth: "620px"}}><div style={{flex: "1", minWidth: "240px"}}><label htmlFor="u2" style={{position: "absolute", left: "-9999px"}}>Your website</label><input id="u2" type="text" placeholder="https://yourdomain.com" name="url" required autoComplete="url" inputMode="url" style={{minHeight: "52px", padding: "0 16px", border: "0", borderRadius: "10px", fontSize: "16px", fontFamily: "inherit", boxSizing: "border-box", width: "100%"}} /></div><button type="submit" style={{minHeight: "52px", padding: "0 28px", border: "0", borderRadius: "10px", background: "#F97316", color: "#0F1B2D", fontWeight: "700", fontSize: "16px", fontFamily: "inherit"}}>Get my free SEO audit</button></div></AuditForm></div></section>
+  );
+}
